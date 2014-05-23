@@ -1,6 +1,8 @@
 
 import os
 import json
+import base64
+import mimetypes
 import asyncio
 
 from tornado import web, gen, template, websocket
@@ -70,15 +72,29 @@ class EchoWebSocket(websocket.WebSocketHandler):
                 render_config.get('generic_value'),
                 render_config.get('reference_file'),
             )
+
             # Render reference_file with render_config values
+            # path = os.path.join(UPLOADS, render_config.get('reference_file'))
+            path = os.path.join(UPLOADS, 'justinbieber2.png')
+
+            result = None
+            errors = []
+
+            if os.path.exists(path):
+                data = base64.b64encode(open(path, 'rb').read()).decode('ascii')
+                mtype, encoding = mimetypes.guess_type(path)
+                result = 'data:{0};base64,{1}'.format(mtype, data)
+            else:
+                errors.append('Could not load file from path {0}'.format(path))
 
             print(' > {0}'.format(reply))
-            self.write_message(json.dumps({
+            resp = {
                 'reference_file': render_config.get('reference_file'),
-                'result_url': '',
-                'errors': [],
+                'result': result,
+                'errors': errors,
                 'message': reply,
-            }))
+            }
+            self.write_message(json.dumps(resp))
 
     def on_close(self):
         print('WebSocket closed')

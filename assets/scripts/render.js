@@ -9,7 +9,31 @@ if('WebSocket' in window) {
 	ws.onmessage = function(evt) { 
 		console.log('msg received: ', evt);
 		result = JSON.parse(evt.data);
-		document.getElementById('canvas').innerHTML += '<p>' +result['message'] +'</p>';
+		document.getElementById('log').innerHTML += '<p>' +result['message'] +'</p>';
+
+		if(result['result']) {
+			console.log('replace image with result', result['result']);
+			var display = window.display;
+			while(display.hasChildNodes()) {
+				display.removeChild(display.lastChild);
+			}
+
+			img = document.createElement('img');
+			img.src = result['result'];
+
+			display.appendChild(img);
+			/*var reader = new FileReader();
+
+			img.onload = function() {
+				window.display.appendChild(img);
+			}
+			reader.onload = function(e) {
+				console.log('File Reader loaded: ', e);
+				img.src = e.target.result;
+			}
+
+			reader.readAsDataURL(result['result']);*/
+		}
 	};
 	ws.onclose = function(evt) { 
 		console.log('connection closed: ', evt);
@@ -28,13 +52,13 @@ form.addEventListener('submit', function(e) {
 
 	console.log('Render with file', window.referenceFile);
 	if(window.referenceFile) {
-		document.getElementById('canvas').innerHTML += '<p>Render file ' +window.referenceFile +'</p>';
+		document.getElementById('log').innerHTML += '<p>Render file ' +window.referenceFile +'</p>';
 		ws.send(JSON.stringify({
 			'reference_file': window.referenceFile,
 			'generic_value': input.value
 		}));
 	}else {
-		document.getElementById('canvas').innerHTML += '<p class="error">No file uploaded</p>';
+		document.getElementById('log').innerHTML += '<p class="error">No file uploaded</p>';
 	}
 });
 
