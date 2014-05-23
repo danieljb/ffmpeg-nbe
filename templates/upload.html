@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block title %}Upload{% end %}
+
+
+{% block content %}
+<form action="/upload" class="dropzone" id="fileUpload">
+	<div class="fallback">
+		<input name="file" type="file" />
+	</div>
+</form>
+<div id="canvas"></div>
+{% end %}
+
+
+{% block scripts %}
+<script src="static/scripts/dropzone.js" type="text/javascript"></script>
+<script type="text/javascript">
+var maxFilesize = {{ filesize }};
+</script>
+<script src="static/scripts/upload.js" type="text/javascript"></script>
+{% end %}
