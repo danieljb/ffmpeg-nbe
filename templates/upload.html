@@ -5,13 +5,13 @@
 
 
 {% block content %}
-<div id="display"></div>
 <form action="/upload" class="dropzone" id="fileUpload">
 	<div class="fallback">
 		<input name="file" type="file" />
 	</div>
 </form>
 <div id="log"></div>
+<div id="display"></div>
 <form id="comp">
 	<label for="genericValue">Generic Value</label>
 	<input type="number" value="5" min="0" max="15" name="genericValue" id="genericValue" />
