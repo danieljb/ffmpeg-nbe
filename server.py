@@ -1,5 +1,6 @@
 
 import os
+import json
 import asyncio
 
 from tornado import web, gen, template, websocket
@@ -32,21 +33,26 @@ class UploadHandler(web.RequestHandler):
         if content_length <= MAX_FILE_SIZE *(1024 *1024):
             files = self.request.files.get('file', [])
             for file_config in files:
-                path = os.path.join(UPLOADS, file_config.get('filename'))
+                filename = file_config.get('filename')
+                path = os.path.join(UPLOADS, filename)
                 with open(path, 'wb') as file:
                     file.write(file_config.get('body'))
 
-            resp = 'File uploaded to {0}'.format(
-                os.path.relpath(path, PROJECT_ROOT),
-            )
+            resp = {
+                'path': os.path.relpath(path, PROJECT_ROOT),
+                'filename': filename,
+            }
             print(resp)
-            self.finish(resp)
+            self.finish(json.dumps(resp))
         else:
             print('File is too big')
             self.send_error(status_code=413)
 
 
 class EchoWebSocket(websocket.WebSocketHandler):
+    """
+    Load node tree from client
+    """
     def open(self):
         print('WebSocket opened')
 
@@ -54,15 +60,25 @@ class EchoWebSocket(websocket.WebSocketHandler):
     def on_message(self, msg):
         print(' < {0}'.format(msg))
         if msg is not None:
+            render_config = json.loads(msg)
+
             # Do something asynchronous
             http_client = AsyncHTTPClient()
             response = yield http_client.fetch('http://example.com/')
 
-            reply = 'Hello {0}, how are you?'.format(msg)
-            reply += repr(response)
+            reply = 'Hello, apply generic value {0} to {1}'.format(
+                render_config.get('generic_value'),
+                render_config.get('reference_file'),
+            )
+            # Render reference_file with render_config values
 
             print(' > {0}'.format(reply))
-            self.write_message(reply)
+            self.write_message(json.dumps({
+                'reference_file': render_config.get('reference_file'),
+                'result_url': '',
+                'errors': [],
+                'message': reply,
+            }))
 
     def on_close(self):
         print('WebSocket closed')

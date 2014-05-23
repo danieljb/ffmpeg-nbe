@@ -11,13 +11,20 @@
 	</div>
 </form>
 <div id="canvas"></div>
+<form id="comp">
+	<label for="genericValue">Generic Value</label>
+	<input type="number" value="5" min="0" max="15" name="genericValue" id="genericValue" />
+	<input type="submit" value="Render" />
+</form>
 {% end %}
 
 
 {% block scripts %}
 <script src="static/scripts/dropzone.js" type="text/javascript"></script>
 <script type="text/javascript">
-var maxFilesize = {{ filesize }};
+var maxFilesize = {{ filesize }},
+	referenceFile;
 </script>
 <script src="static/scripts/upload.js" type="text/javascript"></script>
+<script src="static/scripts/render.js" type="text/javascript"></script>
 {% end %}
