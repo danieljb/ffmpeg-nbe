@@ -5,6 +5,8 @@ import base64
 import mimetypes
 import asyncio
 
+from subprocess import Popen, PIPE
+
 from tornado import web, gen, template, websocket
 from tornado.httpclient import AsyncHTTPClient
 from tornado.platform.asyncio import AsyncIOMainLoop
@@ -51,6 +53,11 @@ class UploadHandler(web.RequestHandler):
             self.send_error(status_code=413)
 
 
+def get_render_path(path):
+    name, ext = os.path.splitext(path)
+    return '{0}_render{1}'.format(name, ext)
+
+
 class EchoWebSocket(websocket.WebSocketHandler):
     """
     Load node tree from client
@@ -65,25 +72,52 @@ class EchoWebSocket(websocket.WebSocketHandler):
             render_config = json.loads(msg)
 
             # Do something asynchronous
-            http_client = AsyncHTTPClient()
-            response = yield http_client.fetch('http://example.com/')
+            # http_client = AsyncHTTPClient()
+            # response = yield http_client.fetch('http://example.com/')
 
             reply = 'Hello, apply generic value {0} to {1}'.format(
                 render_config.get('generic_value'),
                 render_config.get('reference_file'),
             )
 
+            filter_configs = {
+                'boxblur': '{0}:1'.format(render_config.get('generic_value')),
+            }
             # Render reference_file with render_config values
-            # path = os.path.join(UPLOADS, render_config.get('reference_file'))
-            path = os.path.join(UPLOADS, 'justinbieber2.png')
+            path = os.path.join(UPLOADS, render_config.get('reference_file'))
 
             result = None
             errors = []
 
             if os.path.exists(path):
-                data = base64.b64encode(open(path, 'rb').read()).decode('ascii')
-                mtype, encoding = mimetypes.guess_type(path)
-                result = 'data:{0};base64,{1}'.format(mtype, data)
+                render_path = get_render_path(path)
+
+                cmd = ['ffmpeg', '-f', 'image2', '-vcodec', 'png', '-i', path,]
+                filters = [
+                    '-vf',
+                ]
+                filters.extend([
+                    '{0}={1}'.format(k, v) for k, v in filter_configs.items()
+                ])
+                output = [
+                    '-y', render_path,
+                ]
+                cmd.extend(filters)
+                cmd.extend(output)
+
+                print('render with cmd', cmd)
+
+                process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+                stdout, stderr = process.communicate()
+
+                if process.returncode != 0:
+                    errors.append(stderr)
+                else:
+                    data = base64.b64encode(
+                        open(render_path, 'rb').read()
+                    ).decode('ascii')
+                    mtype, encoding = mimetypes.guess_type(path)
+                    result = 'data:{0};base64,{1}'.format(mtype, data)
             else:
                 errors.append('Could not load file from path {0}'.format(path))
 
