@@ -112,6 +112,12 @@ body {
 	cursor: pointer;
 }
 
+#log pre {
+	overflow: scroll;
+	width: 100%;
+	padding-bottom: 1.5em;
+}
+
 #log .dz-preview {
 	margin-top: 1em;
 	padding-left: 1em;
