@@ -92,10 +92,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
             if os.path.exists(path):
                 render_path = get_render_path(path)
 
-                cmd = [
-                    'ffmpeg', '-f', 'image2', '-vcodec', 'png', '-i', path,
-                    '-vf', filters, '-y', render_path,
-                ]
+                cmd = ['ffmpeg', '-i', path, '-vf', filters, '-y', render_path,]
                 print('render with cmd', cmd)
 
                 process = Popen(cmd, stdout=PIPE, stderr=PIPE)
