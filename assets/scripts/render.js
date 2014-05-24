@@ -1,150 +1,51 @@
 if('WebSocket' in window) {
-	console.log("Launch Websocket!");
-
-	var ws = new WebSocket('ws://localhost:8888/socket');
+	var ws = new WebSocket('ws://localhost:8888/socket'),
+		form = document.getElementById('comp');
 
 	ws.onopen = function(evt) {
-		console.log('connection opened: ', evt);
+		console.log('websocket.onopen', evt);
 	};
 	ws.onmessage = function(evt) { 
-		console.log('msg received: ', evt);
+		console.log('websocket.onmessage', evt);
+
 		result = JSON.parse(evt.data);
-		document.getElementById('log').innerHTML += '<p>' +result['message'] +'</p>';
-
 		if(result['result']) {
-			console.log('replace image with result', result['result']);
-			var display = window.display;
-			while(display.hasChildNodes()) {
-				display.removeChild(display.lastChild);
-			}
-
-			img = document.createElement('img');
-			img.src = result['result'];
-
-			display.appendChild(img);
-			window.canvas.setAttribute(
-				'class', 
-				(window.canvas.getAttribute('class') || '').replace('rendering', '').trim()
-			);
+			// Replace the current viewer’s image with rendering result
+			displayImage(result['result'], display)
+			removeClass(canvas, 'rendering');
 		}
+
+		log('<p>' +result['message'] +'</p>');
 	};
 	ws.onclose = function(evt) { 
-		console.log('connection closed: ', evt);
+		console.log('websocket.onclose', evt);
 	};
+
+	window.onbeforeunload = function() {
+		ws.onclose = function () {};
+		ws.close()
+	};
+
+	form.addEventListener('submit', function(e) {
+		console.log('form.submit', referenceFile);
+
+		if(referenceFile) {
+			addClass(canvas, 'rendering');
+			ws.send(JSON.stringify({
+				'reference_file': referenceFile,
+				'filters': filterConfig
+			}));
+
+			log('<p>Render file ' +referenceFile +'</p>');
+		}else {
+			log('<p class="error">No file uploaded</p>');
+		}
+
+		e.preventDefault();
+	});
 }else {
-	// This browser doesn't support WebSocket
-	console.log('WebSocket is not supported by your Browser.');
-};
-
-var form = document.getElementById('comp'),
-	input = document.getElementById('genericValue');
-
-input.focus();
-form.addEventListener('submit', function(e) {
-	e.preventDefault();
-
-	console.log('Render with file', window.referenceFile);
-	if(window.referenceFile) {
-		document.getElementById('log').innerHTML += '<p>Render file ' +window.referenceFile +'</p>';
-		window.canvas.setAttribute(
-			'class', 
-			(window.canvas.getAttribute('class') || '').split(' ').concat('rendering').join(' ')
-		);
-		ws.send(JSON.stringify({
-			'reference_file': window.referenceFile,
-			'filters': {
-				"edges": {
-					"video 0": {
-						"label": "video 0",
-						"type": "VIDEO"
-					},
-					"video 1": {
-						"label": "video 1",
-						"type": "VIDEO"
-					}
-				},
-				"vertices": {
-					"input": {
-						"label": "input",
-						"ports": [
-							{
-								"edgeId": "video 0",
-								"id": "0",
-								"label": "X",
-								"type": "VIDEO"
-							}
-						]
-					},
-					"output": {
-						"label": "output",
-						"ports": [
-							{
-								"direction": "in",
-								"edgeId": "video 1",
-								"id": "0",
-								"label": "X",
-								"type": "VIDEO"
-							}
-						]
-					},
-					"v0": {
-						"description": "Blur the input.",
-						"details": {
-							"params": [
-								{
-									"default": "2",
-									"id": "luma_radius",
-									"value": "5"
-								},
-								{
-									"default": "2",
-									"id": "luma_power",
-									"value": "5"
-								},
-								{
-									"id": "chroma_radius",
-									"value": "3"
-								},
-								{
-									"id": "chroma_power",
-									"value": "3"
-								},
-								{
-									"id": "alpha_radius",
-									"value": ""
-								},
-								{
-									"id": "alpha_power"
-								}
-							]
-						},
-						"label": "boxblur",
-						"ports": [
-							{
-								"direction": "in",
-								"edgeId": "video 0",
-								"id": "0",
-								"label": "X",
-								"type": "VIDEO"
-							},
-							{
-								"direction": "out",
-								"edgeId": "video 1",
-								"id": "1",
-								"label": "Y",
-								"type": "VIDEO"
-							}
-						]
-					}
-				}
-			}
-		}));
-	}else {
-		document.getElementById('log').innerHTML += '<p class="error">No file uploaded</p>';
-	}
-});
-
-window.onbeforeunload = function() {
-	ws.onclose = function () {};
-	ws.close()
+	// This browser doesn’t support WebSocket
+	var errorMsg = 'WebSocket is not supported by your Browser.';
+	console.log(errorMsg);
+	log('<p class="error">' +errorMsg +'</p>');
 };

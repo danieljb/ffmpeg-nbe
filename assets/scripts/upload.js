@@ -1,45 +1,37 @@
-if(window.maxFilesize == undefined) {
-	window.maxFilesize = 5;
+if(maxFilesize == undefined) {
+	maxFilesize = 5;
 }
+
 var dz = new Dropzone("#canvas", {
-	url: "/upload",
 	init: function() {
-		// Remove file field
-		var fu = document.getElementById('fileUpload');
-		fu.parentNode.removeChild(fu);
+		// Remove fallback file field
+		document.getElementById('fileUpload').remove();
 
 		this.on('success', function(file, response) {
-			console.log('success', file, response);
+			console.debug('dropzone.success', file, response);
+
+			// Save server response in global variable for usage in render app
 			var resp = JSON.parse(response);
-			window.referenceFile = resp['filename'];
-			document.getElementById('log').innerHTML += '<p>File: ' +window.referenceFile + ' (' +resp['path'] +')</p>';
+			referenceFile = resp['filename'];
+			log(
+				'<p>Uploaded File ' +window.referenceFile +
+				' to ' +resp['path'] +'</p>'
+			);
 		});
 		this.on('addedfile', function(file) {
-			console.log('added file', file);
-			if(window.display) {
-				var img = new Image();
-				var reader = new FileReader();
-
-				img.onload = function() {
-					var display = window.display;
-					while(display.hasChildNodes()) {
-						display.removeChild(display.lastChild);
-					}
-					display.appendChild(img);
-				}
-				reader.onload = function(e) {
-					console.log('File Reader loaded: ', e);
-					img.src = e.target.result;
-				}
-
-				reader.readAsDataURL(file);
-			}
+			console.log('dropzone.addedfile', file);
+		});
+		this.on('sending', function(file) {
+			loadImage(file, function(image) {
+				displayImage(image, display);
+			});
 		});
 	},
+	url: "/upload",
+	method: 'put',
 	paramName: 'file',
-	maxFilesize: window.maxFilesize,
-	createImageThumbnails: false,
-	previewsContainer: document.getElementById('log'),
 	acceptedFiles: 'image/*',
-	method: 'put'
+	maxFilesize: maxFilesize,
+	previewsContainer: document.getElementById('log'),
+	createImageThumbnails: false
 });
