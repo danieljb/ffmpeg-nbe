@@ -33,6 +33,8 @@ Dropzone.options.fileUpload = {
 	},
 	paramName: 'file',
 	maxFilesize: window.maxFilesize,
+	createImageThumbnails: false,
+	previewsContainer: document.getElementById('log'),
 	acceptedFiles: 'image/*',
 	method: 'put'
 };

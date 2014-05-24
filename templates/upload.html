@@ -10,13 +10,12 @@
 		<input name="file" type="file" />
 	</div>
 </form>
-<div id="log"></div>
-<div id="display"></div>
 <form id="comp">
 	<label for="genericValue">Generic Value</label>
 	<input type="number" value="5" min="0" max="15" name="genericValue" id="genericValue" />
 	<input type="submit" value="Render" />
 </form>
+<div id="log"></div>
 {% end %}
 
 
@@ -25,7 +24,7 @@
 <script type="text/javascript">
 var maxFilesize = {{ filesize }},
 	referenceFile,
-	display = document.getElementById('display');
+	display = document.getElementById('fileUpload');
 </script>
 <script src="static/scripts/upload.js" type="text/javascript"></script>
 <script src="static/scripts/render.js" type="text/javascript"></script>

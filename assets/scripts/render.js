@@ -22,17 +22,6 @@ if('WebSocket' in window) {
 			img.src = result['result'];
 
 			display.appendChild(img);
-			/*var reader = new FileReader();
-
-			img.onload = function() {
-				window.display.appendChild(img);
-			}
-			reader.onload = function(e) {
-				console.log('File Reader loaded: ', e);
-				img.src = e.target.result;
-			}
-
-			reader.readAsDataURL(result['result']);*/
 		}
 	};
 	ws.onclose = function(evt) { 

@@ -20,11 +20,11 @@ body {
 	margin: 0 auto;
 }
 
-#display {
+#fileUpload {
 	width: 100%;
 	height: 100%;
 	min-height: 10em;
-	max-height: 20em;
+	max-height: 35em;
 	overflow: scroll;
 
 	background-color: #999;
@@ -32,11 +32,22 @@ body {
 	box-shadow: 
 		1px 2px 10px rgba(0, 0, 0, .3),
 		1px 2px 20px rgba(0, 0, 0, .15) inset;
+
+	padding-top: 1em;
+	text-align: center;
 }
 
 #log {
 	border-top: 1px dotted #333;
 	border-bottom: 1px dotted #333;
+}
+
+.render-indicator {
+	display: none;
+}
+
+.rendering .render-indicator {
+	display: block;
 }
 
 #display,
@@ -47,16 +58,16 @@ body {
 }
 
 /* Dropzone.js styling */
-.dropzone {
+/*.dropzone {
 	position: relative;
 	display: block;
 	width: 100%;
 	max-width: 15em;
-}
+	}*/
 .dropzone.dz-clickable {
 	cursor: pointer;
 }
-.dropzone .dz-default {
+/*.dropzone .dz-default {
 	width: 100%;
 	height: 14em;
 	background-color: #EEE;
@@ -64,39 +75,39 @@ body {
 	border-radius: 2px;
 	text-align: center;
 	padding-top: 1em;
-}
+	}*/
 
-.dropzone .dz-preview {
+#log .dz-preview {
 	border-left: 1px solid #333;
 	border-radius: 2px;
 	padding-left: 1em;
 	margin-top: 1em;
 	cursor: default;
 }
-.dropzone .dz-error-mark {
+#log .dz-error-mark {
 	color: #ee162d;
 }
-.dropzone .dz-success-mark {
+#log .dz-success-mark {
 	color: #8cc657;
 }
-.dropzone .dz-error-mark,
-.dropzone .dz-success-mark {
+#log .dz-error-mark,
+#log .dz-success-mark {
 	display: none;
 }
-.dropzone .dz-success .dz-success-mark {
+#log .dz-success .dz-success-mark {
 	display: block;
 }
-.dropzone .dz-error .dz-error-mark {
+#log .dz-error .dz-error-mark {
 	display: block;
 }
-.dropzone .dz-progress {
+#log .dz-progress {
 	display: block;
 	width: 100%;
 	height: .2em;
 	margin-top: 1em;
 	background-color: #333;
 }
-.dropzone .dz-progress .dz-upload {
+#log .dz-progress .dz-upload {
 	display: block;
 	height: 100%;
 	background-color: #ee162d;
@@ -107,6 +118,6 @@ body {
 	-ms-transition: width 0.3s ease-in-out;
 	transition: width 0.3s ease-in-out;
 }
-.dropzone .dz-success .dz-progress .dz-upload {
+#log .dz-success .dz-progress .dz-upload {
 	background-color: #8cc657;
 }
