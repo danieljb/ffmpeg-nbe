@@ -11,6 +11,8 @@ from tornado import web, gen, template, websocket
 from tornado.httpclient import AsyncHTTPClient
 from tornado.platform.asyncio import AsyncIOMainLoop
 
+from parse_ff_graph import graph_to_filter_chain
+
 
 MAX_FILE_SIZE = 10
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -80,10 +82,8 @@ class EchoWebSocket(websocket.WebSocketHandler):
                 render_config.get('reference_file'),
             )
 
-            filter_configs = {
-                'boxblur': '{0}:1'.format(render_config.get('generic_value')),
-            }
-            # Render reference_file with render_config values
+            filters = graph_to_filter_chain(render_config.get('filters', {}))
+
             path = os.path.join(UPLOADS, render_config.get('reference_file'))
 
             result = None
@@ -92,19 +92,10 @@ class EchoWebSocket(websocket.WebSocketHandler):
             if os.path.exists(path):
                 render_path = get_render_path(path)
 
-                cmd = ['ffmpeg', '-f', 'image2', '-vcodec', 'png', '-i', path,]
-                filters = [
-                    '-vf',
+                cmd = [
+                    'ffmpeg', '-f', 'image2', '-vcodec', 'png', '-i', path,
+                    '-vf', filters, '-y', render_path,
                 ]
-                filters.extend([
-                    '{0}={1}'.format(k, v) for k, v in filter_configs.items()
-                ])
-                output = [
-                    '-y', render_path,
-                ]
-                cmd.extend(filters)
-                cmd.extend(output)
-
                 print('render with cmd', cmd)
 
                 process = Popen(cmd, stdout=PIPE, stderr=PIPE)

@@ -52,7 +52,92 @@ form.addEventListener('submit', function(e) {
 		);
 		ws.send(JSON.stringify({
 			'reference_file': window.referenceFile,
-			'generic_value': input.value
+			'filters': {
+				"edges": {
+					"video 0": {
+						"label": "video 0",
+						"type": "VIDEO"
+					},
+					"video 1": {
+						"label": "video 1",
+						"type": "VIDEO"
+					}
+				},
+				"vertices": {
+					"input": {
+						"label": "input",
+						"ports": [
+							{
+								"edgeId": "video 0",
+								"id": "0",
+								"label": "X",
+								"type": "VIDEO"
+							}
+						]
+					},
+					"output": {
+						"label": "output",
+						"ports": [
+							{
+								"direction": "in",
+								"edgeId": "video 1",
+								"id": "0",
+								"label": "X",
+								"type": "VIDEO"
+							}
+						]
+					},
+					"v0": {
+						"description": "Blur the input.",
+						"details": {
+							"params": [
+								{
+									"default": "2",
+									"id": "luma_radius",
+									"value": "5"
+								},
+								{
+									"default": "2",
+									"id": "luma_power",
+									"value": "5"
+								},
+								{
+									"id": "chroma_radius",
+									"value": "3"
+								},
+								{
+									"id": "chroma_power",
+									"value": "3"
+								},
+								{
+									"id": "alpha_radius",
+									"value": ""
+								},
+								{
+									"id": "alpha_power"
+								}
+							]
+						},
+						"label": "boxblur",
+						"ports": [
+							{
+								"direction": "in",
+								"edgeId": "video 0",
+								"id": "0",
+								"label": "X",
+								"type": "VIDEO"
+							},
+							{
+								"direction": "out",
+								"edgeId": "video 1",
+								"id": "1",
+								"label": "Y",
+								"type": "VIDEO"
+							}
+						]
+					}
+				}
+			}
 		}));
 	}else {
 		document.getElementById('log').innerHTML += '<p class="error">No file uploaded</p>';
