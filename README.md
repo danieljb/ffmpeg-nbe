@@ -8,6 +8,6 @@ The server side is implemented in python (3.4, to make use of the asyncio module
 A python module for parsing nbe’s node tree is kindly provided by [dmurmann](https://github.com/dmurmann).  
 The frontend uses [dropzone.js](http://www.dropzonejs.com/) for the convenient drag and drop file upload.
 
-## Discalimer #
+## Disclaimer #
 
 As this is a work in progress, proof of concept example application beware of potential security issues!
