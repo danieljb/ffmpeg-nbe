@@ -9,13 +9,18 @@ if('WebSocket' in window) {
 		console.log('websocket.onmessage', evt);
 
 		result = JSON.parse(evt.data);
+
 		if(result['result']) {
 			// Replace the current viewer’s image with rendering result
 			displayImage(result['result'], display)
 			removeClass(canvas, 'rendering');
 		}
 
-		log('<p>' +result['message'] +'</p>');
+		if(result['errors'] && result['errors'].length > 0) {
+			log('<p class="error">' +result['errors'] +'</p>');
+		}else {
+			log('<p class="success">' +result['message'] +'</p>');
+		}
 	};
 	ws.onclose = function(evt) { 
 		console.log('websocket.onclose', evt);
