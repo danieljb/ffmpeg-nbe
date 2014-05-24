@@ -33,7 +33,7 @@ class UploadHandler(web.RequestHandler):
         self.render('upload.html', **{'filesize': MAX_FILE_SIZE})
 
     def put(self):
-        print('file upload')
+        print('UploadHandler.put')
 
         content_length = int(self.request.headers.get('Content-Length', 0))
         if content_length <= MAX_FILE_SIZE *(1024 *1024):
@@ -48,10 +48,9 @@ class UploadHandler(web.RequestHandler):
                 'path': os.path.relpath(path, PROJECT_ROOT),
                 'filename': filename,
             }
-            print(resp)
             self.finish(json.dumps(resp))
         else:
-            print('File is too big')
+            print('\tFile is too big!')
             self.send_error(status_code=413)
 
 
@@ -60,28 +59,24 @@ def get_render_path(path):
     return '{0}_render{1}'.format(name, ext)
 
 
-class EchoWebSocket(websocket.WebSocketHandler):
+class RenderWebSocket(websocket.WebSocketHandler):
     """
     Load node tree from client
     """
     def open(self):
-        print('WebSocket opened')
+        print('RenderWebSocket.open')
 
     @gen.coroutine
     def on_message(self, msg):
-        print(' < {0}'.format(msg))
+        print('RenderWebSocket.on_message')
+        print('\t < {0}'.format(msg))
+
         if msg is not None:
             render_config = json.loads(msg)
-
-            reply = 'Hello, apply generic value {0} to {1}'.format(
-                render_config.get('generic_value'),
-                render_config.get('reference_file'),
-            )
-
             filters = graph_to_filter_chain(render_config.get('filters', {}))
-
             path = os.path.join(UPLOADS, render_config.get('reference_file'))
 
+            reply = ''
             result = None
             errors = []
 
@@ -89,7 +84,11 @@ class EchoWebSocket(websocket.WebSocketHandler):
                 render_path = get_render_path(path)
 
                 cmd = ['ffmpeg', '-i', path, '-vf', filters, '-y', render_path,]
-                print('render with cmd', cmd)
+
+                reply = 'Render {0} using cmd: <pre>{1}</pre>'.format(
+                    render_config.get('reference_file'), cmd
+                )
+                print('\t{0}'.format(reply))
 
                 process = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 stdout, stderr = process.communicate()
@@ -105,7 +104,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
             else:
                 errors.append('Could not load file from path {0}'.format(path))
 
-            print(' > {0}'.format(reply))
+            print('\t > {0}'.format(reply))
             resp = {
                 'reference_file': render_config.get('reference_file'),
                 'result': result,
@@ -115,7 +114,7 @@ class EchoWebSocket(websocket.WebSocketHandler):
             self.write_message(json.dumps(resp))
 
     def on_close(self):
-        print('WebSocket closed')
+        print('RenderWebSocket.on_close')
 
 
 settings = {
@@ -128,7 +127,7 @@ settings = {
 application = web.Application([
     (r'/', MainHandler),
     (r'/upload', UploadHandler),
-    (r'/socket', EchoWebSocket),
+    (r'/socket', RenderWebSocket),
 
     (r'/static/(.*)', web.StaticFileHandler, {
         'path': os.path.join(PROJECT_ROOT, 'assets'),
