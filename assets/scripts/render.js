@@ -22,6 +22,10 @@ if('WebSocket' in window) {
 			img.src = result['result'];
 
 			display.appendChild(img);
+			window.canvas.setAttribute(
+				'class', 
+				(window.canvas.getAttribute('class') || '').replace('rendering', '').trim()
+			);
 		}
 	};
 	ws.onclose = function(evt) { 
@@ -42,6 +46,10 @@ form.addEventListener('submit', function(e) {
 	console.log('Render with file', window.referenceFile);
 	if(window.referenceFile) {
 		document.getElementById('log').innerHTML += '<p>Render file ' +window.referenceFile +'</p>';
+		window.canvas.setAttribute(
+			'class', 
+			(window.canvas.getAttribute('class') || '').split(' ').concat('rendering').join(' ')
+		);
 		ws.send(JSON.stringify({
 			'reference_file': window.referenceFile,
 			'generic_value': input.value
