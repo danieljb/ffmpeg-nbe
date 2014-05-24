@@ -73,10 +73,6 @@ class EchoWebSocket(websocket.WebSocketHandler):
         if msg is not None:
             render_config = json.loads(msg)
 
-            # Do something asynchronous
-            # http_client = AsyncHTTPClient()
-            # response = yield http_client.fetch('http://example.com/')
-
             reply = 'Hello, apply generic value {0} to {1}'.format(
                 render_config.get('generic_value'),
                 render_config.get('reference_file'),
